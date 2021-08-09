@@ -1,0 +1,8 @@
+{
+  "domain": "relaycard",
+  "name": "8 Relays Ethernet Card",
+  "documentation": "https://github.com/psykok/relaycard",
+  "codeowners": ["@psykok"],
+  "requirements": [],
+  "version": "0.1"
+}
