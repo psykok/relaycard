@@ -8,8 +8,8 @@ client.connect((HOST, PORT))
 
 print('Connexion vers ' + HOST + ':' + str(PORT) + ' reussie.')
 
-for i in range(1,9):
-  message='R'+str(i)
+for i in range(1,2):
+  message='L'+str(i)
   n = client.send(bytes(message, 'utf-8'))
   
   data = client.recv(1024)

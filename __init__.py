@@ -1,21 +1,30 @@
 import logging
-from homeassistant.const import EVENT_HOMEASSISTANT_START, EVENT_HOMEASSISTANT_STOP
+
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 import socket
+
+
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PORT,
+    EVENT_HOMEASSISTANT_START,
+    EVENT_HOMEASSISTANT_STOP,
+    EVENT_STATE_CHANGED,
+)
+
+from homeassistant.helpers import state
+
 
 _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "relaycard"
 
-CONF_HOST = "host"
-CONF_PORT = "port"
-
 CONFIG_SCHEMA = vol.Schema(
 	{
 		DOMAIN: vol.Schema({
 			vol.Required(CONF_HOST): cv.string,
-			vol.Optional(CONF_PORT, default=1234): cv.positive_int,
+			vol.Optional(CONF_PORT, default=1234): cv.port,
 		})
 	},
 	extra=vol.ALLOW_EXTRA,
@@ -23,12 +32,20 @@ CONFIG_SCHEMA = vol.Schema(
 
 def setup(hass, config):
    conf = config[DOMAIN]
-   HOST = conf.get(CONF_HOST)
-   PORT = conf.get(CONF_PORT)
+   host = conf.get(CONF_HOST)
+   port = conf.get(CONF_PORT)
+ 
+   try:
+     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+     client.connect((host, port))
+     client.shutdown(2)
+     _LOGGER.info("Connection to relaycard possible") 
+     hass.states.set('relaycard.connection', 'Works!')
+ 
+   except OSError:
+     _LOGGER.error("Unable to connect to relaycard")
+     return False
 
-   client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-   client.connect((HOST, PORT))
-
-   print('Connexion vers ' + HOST + ':' + str(PORT) + ' reussie.')
+   #print('Connection to ' + HOST + ':' + str(PORT) + ' ok')
    return True
 
